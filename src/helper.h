@@ -40,7 +40,11 @@ void deserialize(T& out, nlohmann::json& data)
   visit_struct::for_each(out,
                          [data](const char * name, auto & value)
                            {
-                             if(data.contains(name))
+                             if(visit_struct::traits::is_visitable<typename std::remove_reference<decltype(value)>::type>::value)
+                             {
+
+                             }
+                             else if(data.contains(name))
                              {
                                value = data[name].get<typename std::remove_reference<decltype(value)>::type>();
                              }
