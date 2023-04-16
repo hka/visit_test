@@ -5,7 +5,6 @@
 #include <visit_struct/visit_struct.hpp>
 #include <iostream>
 #include <fstream>
-#include <type_traits>
 
 template<typename>
 struct is_std_vector : std::false_type {};
@@ -35,21 +34,30 @@ inline bool read_json(nlohmann::json& data, const char* jsonPath)
 }
 
 template <typename T>
-void deserialize(T& out, nlohmann::json& data)
+std::enable_if_t<!visit_struct::traits::is_visitable<std::decay_t<T>>::value>
+HandleStructElementDeserialize(T& value, const std::string& name, const nlohmann::json& data)
+{
+  data.at(name).get_to(value);
+}
+
+template <typename T>
+void deserialize(T& out, const nlohmann::json& data)
 {
   visit_struct::for_each(out,
                          [data](const char * name, auto & value)
                            {
-                             if(visit_struct::traits::is_visitable<typename std::remove_reference<decltype(value)>::type>::value)
+                             if(data.contains(name))
                              {
-
-                             }
-                             else if(data.contains(name))
-                             {
-                               //data.at(name).get_to(value); //possible?
-                               value = data[name].get<typename std::remove_reference<decltype(value)>::type>();
+                               HandleStructElementDeserialize(value, name, data);
                              }
                            });
+}
+
+template <typename T>
+std::enable_if_t<visit_struct::traits::is_visitable<std::decay_t<T>>::value>
+HandleStructElementDeserialize(T& value, const std::string& name, const nlohmann::json& data)
+{
+  deserialize(value, data[name]);
 }
 
 template <typename T>
