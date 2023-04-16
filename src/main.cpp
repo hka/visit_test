@@ -16,8 +16,9 @@ struct B
   int a;
   std::vector<int> b;
   A c;
+  std::vector<A> d;
 };
-VISITABLE_STRUCT(B, a, b, c);
+VISITABLE_STRUCT(B, a, b, c, d);
 
 int main(int argc, char* argv[])
 {
@@ -27,7 +28,8 @@ int main(int argc, char* argv[])
     .c = {
       .a = 4,
       .b = 2.1,
-    }
+    },
+    .d = {{.a =1, .b=1.1},{.a =8, .b=1.3}}
   };
   serialize(b, "test.json");
   B c;
@@ -37,5 +39,6 @@ int main(int argc, char* argv[])
     printf("True\n");
   else
     printf("False\n");
+
   return 0;
 }
