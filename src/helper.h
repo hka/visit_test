@@ -102,12 +102,21 @@ void serialize(const T& out, const char* jsonPath)
   write_json(data, jsonPath);
 }
 
+template <typename T>
+bool struct_eq(const T & t1, const T & t2);
+
 struct eq_visitor {
   bool result = true;
 
   template <typename T>
-  void operator()(const char *, const T & t1, const T & t2) {
+  std::enable_if_t<!visit_struct::traits::is_visitable<std::decay_t<T>>::value>
+  operator()(const char *, const T & t1, const T & t2) {
     result = result && (t1 == t2);
+  }
+  template <typename T>
+  std::enable_if_t<visit_struct::traits::is_visitable<std::decay_t<T>>::value>
+  operator()(const char *, const T & t1, const T & t2) {
+    result = result && struct_eq(t1, t2);
   }
 };
 
@@ -117,5 +126,6 @@ bool struct_eq(const T & t1, const T & t2) {
   visit_struct::for_each(t1, t2, vis);
   return vis.result;
 }
+
 
 #endif

@@ -33,11 +33,9 @@ int main(int argc, char* argv[])
   B c;
   deserialize(c, "test.json");
   serialize(c, "test2.json");
-  /*
   if(struct_eq(b, c))
     printf("True\n");
   else
     printf("False\n");
-  */
   return 0;
 }
