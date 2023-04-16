@@ -46,6 +46,7 @@ void deserialize(T& out, nlohmann::json& data)
                              }
                              else if(data.contains(name))
                              {
+                               //data.at(name).get_to(value); //possible?
                                value = data[name].get<typename std::remove_reference<decltype(value)>::type>();
                              }
                            });
@@ -61,21 +62,27 @@ void deserialize(T& out, const char* jsonPath)
 }
 
 template <typename T>
+std::enable_if_t<!visit_struct::traits::is_visitable<std::decay_t<T>>::value>
+ HandleStructElement(const T& e, const std::string& name, nlohmann::json& data)
+{
+  data[name] = e;
+}
+
+template <typename T>
 void serialize(const T& out, nlohmann::json& data)
 {
   visit_struct::for_each(out,
                          [&data](const char * name, const auto & value)
                            {
-                             if(visit_struct::traits::is_visitable<typename std::remove_reference<decltype(value)>::type>::value)
-                             {
-                               //doesnt work, something with type deduction
-                               //serialize(value, data[name]);
-                             }
-                             else
-                             {
-                               data[name] = value;
-                             }
+                             HandleStructElement(value, name, data);
                            });
+}
+
+template <typename T>
+std::enable_if_t<visit_struct::traits::is_visitable<std::decay_t<T>>::value>
+HandleStructElement(const T& e, const std::string& name, nlohmann::json& data)
+{
+  serialize(e, data[name]);
 }
 
 template <typename T>

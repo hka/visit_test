@@ -3,6 +3,7 @@
 #include <visit_struct/visit_struct.hpp>
 #include <vector>
 
+
 struct A
 {
   int a;
@@ -16,8 +17,7 @@ struct B
   std::vector<int> b;
   A c;
 };
-//VISITABLE_STRUCT(B, a, b, c); //doesnt work
-VISITABLE_STRUCT(B, a, b);
+VISITABLE_STRUCT(B, a, b, c);
 
 int main(int argc, char* argv[])
 {
@@ -30,8 +30,8 @@ int main(int argc, char* argv[])
     }
   };
   serialize(b, "test.json");
-  B c;
-  deserialize(c, "test.json");
-  serialize(c, "test2.json");
+  //B c;
+  //deserialize(c, "test.json");
+  //serialize(c, "test2.json");
   return 0;
 }
