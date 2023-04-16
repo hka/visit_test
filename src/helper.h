@@ -6,12 +6,6 @@
 #include <iostream>
 #include <fstream>
 
-template<typename>
-struct is_std_vector : std::false_type {};
-
-template<typename T, typename A>
-  struct is_std_vector<std::vector<T,A>> : std::true_type {};
-
 inline void write_json(nlohmann::json& data, const char* jsonPath)
 {
   std::fstream of(jsonPath, std::fstream::out);
